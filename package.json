@@ -1,7 +1,7 @@
 {
-  "name": "ts-optchain",
-  "version": "0.1.2",
-  "description": "Optional Chaining for TypeScript",
+  "name": "safe-ts",
+  "version": "0.0.1",
+  "description": "Type safe deep object selector",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rimeto/ts-optchain.git"
@@ -18,7 +18,7 @@
     "@types/jest": "^23.3.1",
     "jest": "^23.4.2",
     "ts-jest": "^23.1.2",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -29,7 +29,7 @@
     ],
     "rootDir": "./src",
     "testEnvironment": "node",
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex": "./src/index.test.ts",
     "transform": {
       ".(ts|tsx)": "ts-jest"
     }
@@ -44,5 +44,8 @@
   ],
   "engines": {
     "node": ">=6"
+  },
+  "dependencies": {
+    "@types/node": "^10.12.9"
   }
 }

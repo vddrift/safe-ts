@@ -1,191 +1,117 @@
-# Optional Chaining for TypeScript
+# Safe nested object selector
 
-The `ts-optchain` library is an implementation of optional chaining with default value support for TypeScript. `ts-optchain` helps the developer produce less verbose code while preserving TypeScript typings when traversing deep property structures. This library serves as an interim solution pending JavaScript/TypeScript built-in support for optional chaining in future releases (see: [Related Resources](#related)).
+`safe-ts` helps you select values from nested objects and arrays,
+without throwing error `Cannot read property 'x' of undefined`.
+
+It's compact, 
+supported by all browsers, 
+ preserves Typescript typings and code-completion during development by your IDE (like WebStorm or Visual Studio Code). 
+
+It also takes an optional default value.
 
 ## Install
 
 ```bash
-npm i --save ts-optchain
+npm i --save safe-ts
 ```
 
 ### Requirements
 
+- TypeScript >= 2.9
 - NodeJS >= 6
-- TypeScript >= 2.8
 
 ## Example Usage
 
 ```typescript
-import { oc } from 'ts-optchain';
+import { safe } from 'safe-ts';
 
-interface I {
-  a?: string;
-  b?: {
-    d?: string;
-  };
-  c?: Array<{
-    u?: {
-      v?: number;
-    };
-  }>;
-  e?: {
-    f?: string;
-    g?: () => string;
-  };
-}
-
-const x: I = {
-  a: 'hello',
-  b: {
-    d: 'world',
-  },
-  c: [{ u: { v: -100 } }, { u: { v: 200 } }, {}, { u: { v: -300 } }],
+const abc = {
+    a: {
+        b: [
+            {c: 'C-0'}, 
+        ],
+    }
 };
 
-// Here are a few examples of deep object traversal using (a) optional chaining vs
-// (b) logic expressions. Each of the following pairs are equivalent in
-// result. Note how the benefits of optional chaining accrue with
-// the depth and complexity of the traversal.
+let c1 = safe(_=> abc.a.b[0].c); // 'C-0'
 
-oc(x).a(); // 'hello'
-x.a;
-
-oc(x).b.d(); // 'world'
-x.b && x.b.d;
-
-oc(x).c[0].u.v(); // -100
-x.c && x.c[0] && x.c[0].u && x.c[0].u.v;
-
-oc(x).c[100].u.v(); // undefined
-x.c && x.c[100] && x.c[100].u && x.c[100].u.v;
-
-oc(x).c[100].u.v(1234); // 1234
-(x.c && x.c[100] && x.c[100].u && x.c[100].u.v) || 1234;
-
-oc(x).e.f(); // undefined
-x.e && x.e.f;
-
-oc(x).e.f('optional default value'); // 'optional default value'
-(x.e && x.e.f) || 'optional default value';
-
-// NOTE: working with function value types can be risky. Additional run-time
-// checks to verify that object types are functions before invocation are advised!
-oc(x).e.g(() => 'Yo Yo')(); // 'Yo Yo'
-((x.e && x.e.g) || (() => 'Yo Yo'))();
+let c9 = safe(_=> abc.a.b[9].c, 'C-9'); // 'C-9'
 ```
-
-## Problem
-
-When traversing tree-like property structures, the developer often must check for existence of intermediate nodes to avoid run-time exceptions. While TypeScript is helpful in requiring the necessary existence checks at compile-time, the final code is still quite cumbersome. For example, given the interfaces:
-
-```typescript
-interface IAddress {
-  street?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-}
-
-interface IHome {
-  address?: IAddress;
-  phoneNumber?: string;
-}
-
-interface IUser {
-  home?: IHome;
-}
+## Alternatives
+Logical expressions are very verbose for long paths.
 ```
-
-Without support for optional chaining built into TypeScript yet, an implementation for a method to extract the home street string from this structure would look like:
-
-```typescript
-function getHomeStreet(user: IUser, defaultValue?: string) {
-  return (user.home && user.home.address && user.home.address.street) || defaultValue;
-}
+let c2 = (abc.a && abc.a.b && abc.a.b[9] && abc.a.b[9].c) || 'C-9'
 ```
-
-This implementation is tedious to write. Utilities like `lodash`'s `get(...)` can help tighten the implementation, namely:
+[Lodash](https://lodash.com/) `get(...)` is more compact, 
+but removes typescript support.
 
 ```typescript
 import { get } from 'lodash';
 
-function getHomeStreet(user: IUser, defaultValue?: string) {
-  return get(user, 'home.address.street', defaultValue);
-}
+let c9 = get(abc, 'a.b[9].c', 'C-9');
 ```
 
-However, when using tools like `lodash` the developer loses the benefits of:
-
-- Compile-time validation of the path `home.address.street`
-- Compile-time validation of the expected type of the value at `home.address.street`
-- Development-time code-completion assistance when manipulating the path `home.address.street` using tools like Visual Studio Code.
-
-## Solution
-
-Using the `ts-optchain` utility, `getHomeStreet` can be concisely written as:
+[`ts-optchain`](https://www.npmjs.com/package/ts-optchain) preserves typescript typings and has an elegant syntax. 
+ Reading the source code and this [article](https://medium.com/inside-rimeto/optional-chaining-in-typescript-622c3121f99b) tought me a lot. 
+Unfortunately it requires Proxy. 
+Please consider this option if the [browser support](https://caniuse.com/#search=proxy) suits your project.
 
 ```typescript
 import { oc } from 'ts-optchain';
 
-function getHomeStreet(user: IUser, defaultValue?: string) {
-  return oc(user).home.address.street(defaultValue);
-}
+let c9 = oc(abc).b.c('C-9');
 ```
-
-Other features of `ts-optchain` include:
 
 ### Type Preservation
 
-`ts-optchain` preserves TypeScript typings through deep tree traversal. For example:
+`safe-ts` preserves TypeScript typings and code-completion by IDEs like Visual Studio Code or WebStorm.
 
 ```typescript
-// phoneNumberOptional is of type: string | undefined
-const phoneNumberOptional = oc(user).home.phoneNumber();
+const abc = {a: {b: {c: 'C'}}};
 
-// phoneNumberRequired is of type: string
-const phoneNumberRequired = oc(user).home.phoneNumber('+1.555.123.4567');
+let b = safe(_=> abc.a.b, {c:'C default'});
+
+console.log(b.c) // When typing 'b' your code editor suggests '.c'
 ```
 
-### Array Types
+### Optional properties
 
-`ts-optchain` supports traversal of Array types by index. For example:
-
+To traverse optional properties, wrap your object in the `all` function, included in `ts-safe`. 
 ```typescript
-interface IItem {
-  name?: string;
-}
+import { safe, all } from 'safe-ts';
 
-interface ICollection {
-  items?: IItem[];
-}
+// Everything is optional.
+type ABCDE = {a?: {b?: {c?: {d?: {e?: string}}}}}
+const abc:ABCDE = {
+    a:{
+        b: {
+            c: {} // incomplete.
+        }
+    }
+};
 
-function getFirstItemName(collection: ICollection) {
-  // Return type: string
-  return oc(collection).items[0].name('No Name Item');
-}
+let e1 = safe(_=> abc.a.b.c.d.e); // typescript error: Object is possibly 'undefined'
+let e2 = safe(_=> all(abc).a.b.c.d.e); // no typescript error. e2 becomes undefined, as expected.
 ```
 
-### Function Types
-
-`ts-optchain` supports traversal to function values. For example:
-
+Note: the `all` function tells typescript all (nested) properties exits. 
+This affects the return value. For instance, using `abc` from before: 
 ```typescript
-interface IThing {
-  getter?: () => string;
+// 'all' tells typescript not to worry whether anything exists.
+let c = safe(_=> all(abc).a.b.c);
+
+if (c!=undefined) {
+    // When c exists, typescript falsely assumes d and e exist.
+    console.log(c.d.e); // RUNTIME error: Cannot read property
+    
+    // This works. Typscript normally enforces this. Now it's up to you. 
+    if (c.d!==undefined) {
+        console.log(c.d.e); // undefined. no error.    
+    }
 }
-
-const thing: IThing = { ... };
-const result = oc(thing).getter(() => 'Default Getter')();
 ```
-
-### Code-Completion
-
-`ts-optchain` enables code-completion assistance in popular IDEs such as Visual Studio Code when writing tree-traversal code.
-
-## <a name="related"></a>Related Resources
-
-- [Optional Chaining for JavaScript (TC39 Proposal)](https://github.com/tc39/proposal-optional-chaining)
+Please keep this in mind when using optional properties.
 
 ## License
 
-`ts-optchain` is MIT Licensed.
+`safe-ts` is MIT Licensed.
