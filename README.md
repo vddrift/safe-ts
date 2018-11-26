@@ -42,7 +42,7 @@ Logical expressions are very verbose for long paths.
 ```
 let c2 = (abc.a && abc.a.b && abc.a.b[9] && abc.a.b[9].c) || 'C-9'
 ```
-[Lodash](https://lodash.com/) `get(...)` is more compact, 
+[`Lodash`](https://lodash.com/) `get(...)` is more compact, 
 but removes typescript support.
 
 ```typescript
@@ -52,7 +52,6 @@ let c9 = get(abc, 'a.b[9].c', 'C-9');
 ```
 
 [`ts-optchain`](https://www.npmjs.com/package/ts-optchain) preserves typescript typings and has an elegant syntax. 
- Reading the source code and this [article](https://medium.com/inside-rimeto/optional-chaining-in-typescript-622c3121f99b) tought me a lot. 
 Unfortunately it requires Proxy. 
 Please consider this option if the [browser support](https://caniuse.com/#search=proxy) suits your project.
 
@@ -61,7 +60,7 @@ import { oc } from 'ts-optchain';
 
 let c9 = oc(abc).b.c('C-9');
 ```
-
+Reading the `ts-optchain `[`source`](https://github.com/rimeto/ts-optchain) and this [article](https://medium.com/inside-rimeto/optional-chaining-in-typescript-622c3121f99b) tought me a lot and inspired me to publish my simple alternative. 
 ### Type Preservation
 
 `safe-ts` preserves TypeScript typings and code-completion by IDEs like Visual Studio Code or WebStorm.

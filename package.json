@@ -4,7 +4,7 @@
   "description": "Type safe deep object selector",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rimeto/ts-optchain.git"
+    "url": "git+https://github.com/vddrift/safe-ts.git"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
