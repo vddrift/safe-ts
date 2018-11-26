@@ -14,7 +14,7 @@ describe('safe', () => {
     it('should get nested property.', () => {
         b = safe(_ => abc.a.b);
         // console.log(b.c); // uncomment for typescript error: Object possibly undefined
-        if (b!==undefined) { // let typescript exclude 'undefined', because there's no default.
+        if (b) { // let typescript exclude 'undefined', because there's no default.
             // console.log(b.d); // uncomment for typescript error: Property 'd' does not exist
             expect(b.c).toEqual('C'); // type safe. c is suggested by IDE.
         }
@@ -109,8 +109,7 @@ describe('safe', () => {
 
         const single = safe(_ => abcExtra.a.b);
         // expect(single.c).toEqual('C from abcExtra'); // uncomment for typescript error: Object is possibly 'undefined'
-        if (single!==undefined) { // avoid typescript error
-
+        if (single) { // avoid typescript error
             expect(single.cExtra).toEqual('Only in abcExtra');
         }
     });
@@ -131,7 +130,7 @@ describe('safe', () => {
 
         // Make all (nested) properties required
         c = safe(_=>all(maybeAbc).a.b.c);
-        if (c!==undefined) { // avoid typescript error
+        if (c) { // avoid typescript error
             expect(c.d).toEqual('D');
         }
     });
@@ -147,7 +146,7 @@ describe('safe', () => {
        };
 
        c = safe(_=> all(abcde).a.b.c);
-       if (c!=undefined) {
+       if (c) {
            let e = null;
            try {
                // The following DOESN'T cause a typescript error,

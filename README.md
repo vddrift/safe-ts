@@ -100,13 +100,13 @@ This affects the return value. For instance, using `abc` from before:
 // 'all' tells typescript not to worry whether anything exists.
 let c = safe(_=> all(abc).a.b.c);
 
-if (c!=undefined) {
+if (c) {
     // When c exists, typescript falsely assumes d and e exist.
     console.log(c.d.e); // RUNTIME error: Cannot read property
     
     // This works. Typscript normally enforces this. Now it's up to you. 
-    if (c.d!==undefined) {
-        console.log(c.d.e); // undefined. no error.    
+    if (c.d) {
+        console.log(c.d.e);
     }
 }
 ```
