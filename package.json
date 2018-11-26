@@ -1,6 +1,6 @@
 {
   "name": "safe-ts",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Type safe deep object selector",
   "repository": {
     "type": "git",
